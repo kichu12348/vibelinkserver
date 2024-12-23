@@ -2,3 +2,5 @@ node_modules
 keys.json
 package-lock.json
 .env
+uploads
+temp
