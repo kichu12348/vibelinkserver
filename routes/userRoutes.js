@@ -11,6 +11,7 @@ const {
     getUserProfileForPost
 } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
+const User = require('../models/User');
 
 router.post('/register', registerUser);
 router.post('/login', loginUser);
