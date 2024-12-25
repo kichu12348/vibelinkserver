@@ -20,5 +20,15 @@ router.post('/follow/:id', protect, followUser);
 router.post('/unfollow/:id', protect, unfollowUser);
 router.get('/search', protect, searchUsers);
 router.get('/:id', protect, getUserProfileForPost);
+
+router.post('/push-token', protect, async (req, res) => {
+    try {
+        const { token } = req.body;
+        await User.findByIdAndUpdate(req.user._id, { expoPushToken: token });
+        res.status(200).json({ message: 'Push token saved' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
  
 module.exports = router;

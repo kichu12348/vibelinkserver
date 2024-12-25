@@ -1,5 +1,7 @@
 const Message = require('../models/Message');
 const Conversation = require('../models/Conversation');
+const { uploadFile } = require('../utils/uploadToGcp');
+const { sendPushNotification } = require('../utils/notificationService');
 
 let io;
 
@@ -30,7 +32,7 @@ const getOrCreateConversation = async (participants) => {
 
 exports.sendMessage = async (req, res) => {
     try {
-        const { receiverId, content, conversationId } = req.body;
+        const { receiverId, content, conversationId, media, sharedPost } = req.body;
         const senderId = req.user._id;
 
         let conversation;
@@ -52,18 +54,23 @@ exports.sendMessage = async (req, res) => {
         const message = await Message.create({
             conversation: conversation._id,
             sender: senderId,
-            content
+            content,
+            media: media ? { type: 'image', url: media } : undefined,
+            sharedPost: sharedPost || undefined
         });
 
         // Update conversation
         await conversation.updateLastMessage({
-            content,
+            content: content || (sharedPost ? 'Shared a post' : 'Sent an image'),
             sender: senderId,
-            type: 'text'
+            type: sharedPost ? 'post' : (media ? 'image' : 'text')
         });
 
-        // Populate sender details
-        await message.populate('sender', 'username profileImage');
+        // Populate sender and post details
+        await message.populate([
+            { path: 'sender', select: 'username profileImage' },
+            { path: 'sharedPost', populate: { path: 'user', select: 'username profileImage' } }
+        ]);
         await conversation.populate('participants.user', 'username profileImage');
 
         // Emit to all participants
@@ -73,6 +80,24 @@ exports.sendMessage = async (req, res) => {
                     message,
                     conversation
                 });
+            }
+        });
+
+        // Send push notification to receiver
+        conversation.participants.forEach(async participant => {
+            if (participant.user._id.toString() !== senderId.toString()) {
+                await sendPushNotification(
+                    participant.user._id,
+                    message.sender.username || 'New message',
+                    content || 'Sent you a message',
+                    {
+                        conversationId: conversation._id,
+                        receiverId: participant.user._id,
+                        username: participant.user.username,
+                        profileImage: participant.user.profileImage,
+                        participants: conversation.participants,
+                    }
+                );
             }
         });
 
@@ -181,6 +206,16 @@ exports.createGroupChat = async (req, res) => {
     }
 };
 
+exports.uploadFileToGCPBucket = async (req, res) => {
+    try {
+        const {filename} = req.body;
+        const url= await uploadFile({name:filename});
+        res.status(201).json({url});
+    } catch (error) {
+        res.status(500).json({ message:`error uploading to GCP: ${error.message}` });
+        
+    }
+};
 
 exports.setIoForMessage = (i) => {
     io = i;

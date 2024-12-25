@@ -81,7 +81,8 @@ exports.deletePost = async (req, res) => {
 
 exports.likePost = async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id);
+    const post = await Post.findById(req.params.id)
+      .populate('user', 'username profileImage');
 
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
@@ -93,6 +94,25 @@ exports.likePost = async (req, res) => {
 
     post.likes.push(req.user._id);
     await post.save();
+
+    // Emit notification to post owner
+    if (post.user._id.toString() !== req.user._id.toString()) {
+      io.to(post.user._id.toString()).emit('postLiked', {
+        postId: post._id,
+        likedBy: {
+          _id: req.user._id,
+          username: req.user.username,
+          profileImage: req.user.profileImage
+        },
+        post: {
+          _id: post._id,
+          content: post.content.substring(0, 50) + (post.content.length > 50 ? '...' : '')
+        }
+      });
+    }
+
+    // Emit real-time update to all clients
+    io.emit('postUpdated', post);
 
     res.json(post);
   } catch (error) {

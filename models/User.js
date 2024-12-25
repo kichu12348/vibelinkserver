@@ -33,11 +33,14 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'User' 
     }],
+    expoPushToken: {
+        type: String,
+        default: null
+    },
     createdAt: { 
         type: Date, 
         default: Date.now 
     }
 });
-
 
 module.exports = mongoose.model('User', userSchema);
