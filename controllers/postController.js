@@ -165,7 +165,10 @@ exports.addComment = async (req, res) => {
   try {
     const { content } = req.body;
 
-    const post = await Post.findById(req.params.id);
+    const post = await Post.findById(req.params.id).populate(
+      "user",
+      "username profileImage"
+    )
 
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
@@ -179,6 +182,15 @@ exports.addComment = async (req, res) => {
     post.comments.push(comment);
     await post.save();
 
+    await sendPushNotification(
+      post.user._id.toString(),
+      "New Comment",
+      `${req.user.username} commented ${content} on your post`,
+      { PostId: post._id.toString()}
+    );
+
+    io.emit("postUpdated", post);
+
     res.json(post);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
@@ -187,7 +199,10 @@ exports.addComment = async (req, res) => {
 
 exports.deleteComment = async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id);
+    const post = await Post.findById(req.params.id).populate(
+      "user",
+      "username profileImage"
+    )
 
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
@@ -209,6 +224,7 @@ exports.deleteComment = async (req, res) => {
       (comment) => comment._id.toString() !== req.params.commentId
     );
     await post.save();
+    io.emit("postUpdated", post);
 
     res.json(post);
   } catch (error) {
