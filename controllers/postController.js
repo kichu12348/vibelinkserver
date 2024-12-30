@@ -1,5 +1,6 @@
 const Post = require("../models/Post");
 const { uploadFile, deleteFile } = require("../utils/uploadToGcp");
+const { sendPushNotification } = require("../utils/notificationService");
 
 let io;
 
@@ -81,8 +82,10 @@ exports.deletePost = async (req, res) => {
 
 exports.likePost = async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id)
-      .populate('user', 'username profileImage');
+    const post = await Post.findById(req.params.id).populate(
+      "user",
+      "username profileImage"
+    );
 
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
@@ -97,22 +100,31 @@ exports.likePost = async (req, res) => {
 
     // Emit notification to post owner
     if (post.user._id.toString() !== req.user._id.toString()) {
-      io.to(post.user._id.toString()).emit('postLiked', {
+      io.to(post.user._id.toString()).emit("postLiked", {
         postId: post._id,
         likedBy: {
           _id: req.user._id,
           username: req.user.username,
-          profileImage: req.user.profileImage
+          profileImage: req.user.profileImage,
         },
         post: {
           _id: post._id,
-          content: post.content.substring(0, 50) + (post.content.length > 50 ? '...' : '')
-        }
+          content:
+            post.content.substring(0, 50) +
+            (post.content.length > 50 ? "..." : ""),
+        },
       });
     }
 
+    await sendPushNotification(
+      post.user._id.toString(),
+      "New Like",
+      `${req.user.username} liked your post`,
+      { PostId: post._id }
+    );
+
     // Emit real-time update to all clients
-    io.emit('postUpdated', post);
+    io.emit("postUpdated", post);
 
     res.json(post);
   } catch (error) {
@@ -122,7 +134,11 @@ exports.likePost = async (req, res) => {
 
 exports.unlikePost = async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id);
+    const post = await Post.findById(req.params.id)
+    .populate(
+      "user",
+      "username profileImage"
+    );
 
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
@@ -136,6 +152,9 @@ exports.unlikePost = async (req, res) => {
       (like) => like.toString() !== req.user._id.toString()
     );
     await post.save();
+
+    io.emit("postUpdated", post);
+
     res.json(post);
   } catch (error) {
     res.status(500).json({ message: "Server error" });

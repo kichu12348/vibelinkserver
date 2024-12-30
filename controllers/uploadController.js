@@ -33,7 +33,7 @@ exports.uploadChunk = async (req, res) => {
 
         res.json({ success: true });
     } catch (error) {
-        console.error(error);
+        console.log(error);
         res.status(500).json({ message: 'Error uploading chunk' });
     }
 };

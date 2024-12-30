@@ -31,5 +31,14 @@ router.post('/push-token', protect, async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
+router.post('/remove-push-token', protect, async (req, res) => {
+    try {
+        await User.findByIdAndUpdate(req.user._id, { expoPushToken: null });
+        res.status(200).json({ message: 'Push token removed' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
  
 module.exports = router;

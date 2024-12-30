@@ -6,9 +6,11 @@ const messageRoutes = require('./routes/messageRoutes');
 const postRoutes = require('./routes/postRoutes');
 const fileUpload = require('express-fileupload');
 const path = require('path');
+const fs = require('fs');
 const {setIoForUser} = require('./controllers/userController');
 const {setIoForPost} = require('./controllers/postController');
 const {setIoForMessage, handleSocketEvents} = require('./controllers/messageController');
+const {getNumberOfAll} = require('./controllers/publicController');
 
 const app = express();
 
@@ -22,9 +24,6 @@ app.use(fileUpload({
     tempFileDir: '/tmp/'
 }));
 
-// Serve uploaded files
-app.use('/uploads', express.static(path.resolve(__dirname, 'uploads')));
-
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log('Connected to MongoDB'))
@@ -36,8 +35,15 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/upload', require('./routes/uploadRoutes'));
 
-app.get("/", (req, res) => {
-    res.json({ message: "Server is running" });
+app.get("/", async (req, res) => {
+    const {users,posts,messages} = await getNumberOfAll();
+    fs.readFile(path.join(__dirname, 'public', 'index.html'), 'utf8', (err, data) => {
+        if (err) {
+            res.status(500).send("Server error");
+        } else {
+            res.send(data.replace("{{users}}", users).replace("{{posts}}", posts).replace("{{messages}}", messages));
+        }
+    });
 });
 
 const PORT = process.env.PORT || 3000;

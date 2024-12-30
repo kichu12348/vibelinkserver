@@ -25,7 +25,7 @@ const getOrCreateConversation = async (participants) => {
 
         return conversation;
     } catch (error) {
-        console.error('Create conversation error:', error);
+        console.log('Create conversation error:', error);
         throw error;
     }
 };
@@ -130,14 +130,14 @@ exports.getConversations = async (req, res) => {
 
 exports.getMessages = async (req, res) => {
     try {
-        const { conversationId } = req.params;
+        const {conversationId} = req.params;
         const userId = req.user._id;
 
         // Get messages without conversation verification first
         const messages = await Message.find({ conversation: conversationId })
             .populate('sender', 'username profileImage')
-            .populate('sharedPost')
-            .sort({ createdAt: 1 });
+            .populate('sharedPost') // Populate shared post details
+            .sort({ createdAt: 1 }); // Sort by oldest first
 
         if (!messages) {
             return res.status(404).json({ message: 'No messages found' });
@@ -145,7 +145,7 @@ exports.getMessages = async (req, res) => {
 
         res.json(messages);
     } catch (error) {
-        console.error('Get messages error:', error);
+        console.log('Get messages error:', error);
         res.status(500).json({ message: error.message });
     }
 };
@@ -229,5 +229,13 @@ exports.handleSocketEvents = (socket) => {
 
     socket.on('leaveChat', (conversationId) => {
         socket.leave(`chat:${conversationId}`);
+    });
+
+    socket.on('typing', ({ conversationId, userId }) => {
+        socket.to(`chat:${conversationId}`).emit('userTyping', { userId });
+    });
+
+    socket.on('stopTyping', ({ conversationId, userId }) => {
+        socket.to(`chat:${conversationId}`).emit('userStopTyping', { userId });
     });
 };
