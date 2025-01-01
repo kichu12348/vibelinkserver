@@ -134,8 +134,7 @@ exports.likePost = async (req, res) => {
 
 exports.unlikePost = async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id)
-    .populate(
+    const post = await Post.findById(req.params.id).populate(
       "user",
       "username profileImage"
     );
@@ -168,7 +167,7 @@ exports.addComment = async (req, res) => {
     const post = await Post.findById(req.params.id).populate(
       "user",
       "username profileImage"
-    )
+    );
 
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
@@ -182,12 +181,14 @@ exports.addComment = async (req, res) => {
     post.comments.push(comment);
     await post.save();
 
-    await sendPushNotification(
-      post.user._id.toString(),
-      "New Comment",
-      `${req.user.username} commented ${content} on your post`,
-      { PostId: post._id.toString()}
-    );
+    if (post.user._id.toString() !== req.user._id.toString()) {
+      await sendPushNotification(
+        post.user._id.toString(),
+        "New Comment",
+        `${req.user.username} commented ${content} on your post`,
+        { PostId: post._id.toString() }
+      );
+    }
 
     io.emit("postUpdated", post);
 
@@ -202,7 +203,7 @@ exports.deleteComment = async (req, res) => {
     const post = await Post.findById(req.params.id).populate(
       "user",
       "username profileImage"
-    )
+    );
 
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
