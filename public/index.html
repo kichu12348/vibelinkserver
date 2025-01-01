@@ -6,6 +6,7 @@
     <meta name="description" content="Vibe Link - Connect, Share, and Create amazing moments together">
     <title>Vibe Link</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <meta name="theme-color" content="#8b5cf6">
 </head>
 <body class="theme-default">
     <div class="container">
@@ -269,15 +270,18 @@
     </style>
 
     <script>
+        
         // Konami code implementation
         let konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
         let konamiIndex = 0;
+        const topBar = document.head.querySelector('meta[name="theme-color"]');
 
         document.addEventListener('keydown', (e) => {
             if (e.key === konamiCode[konamiIndex]) {
                 konamiIndex++;
                 if (konamiIndex === konamiCode.length) {
                     document.body.classList.add('theme-matrix');
+                    topBar.setAttribute('content', '#00ff00');
                     document.querySelector('.secret-footer').style.opacity = '1';
                     konamiIndex = 0;
                 }
@@ -292,6 +296,7 @@
             clickCount++;
             if (clickCount === 3) {
                 document.body.classList.add('theme-retro');
+                topBar.setAttribute('content', '#f65c8b');
             }
         });
 
