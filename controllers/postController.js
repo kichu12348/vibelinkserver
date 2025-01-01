@@ -236,7 +236,7 @@ exports.deleteComment = async (req, res) => {
 exports.addReply = async (req, res) => {
   try {
     const { content } = req.body;
-    const post = await Post.findById(req.params.id);
+    const post = await Post.findById(req.params.id).populate("user","username profileImage");
 
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
@@ -253,6 +253,22 @@ exports.addReply = async (req, res) => {
     });
 
     await post.save();
+
+    const commentUser = ()=>{
+      if(typeof comment.user === 'string') return comment.user;
+      return comment.user._id.toString();
+    }
+
+    if (commentUser() !== req.user._id.toString()) {
+      await sendPushNotification(
+        commentUser(),
+        "New Reply",
+        `${req.user.username} replied ${content} on your comment`,
+        { PostId: post._id.toString() }
+      );
+    }
+
+    io.emit("postUpdated", post);
 
     res.json(post);
   } catch (error) {
