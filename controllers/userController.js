@@ -197,18 +197,18 @@ exports.unfollowUser = async (req, res) => {
 
 exports.searchUsers = async (req, res) => {
     try {
-        const keyword = req.query.keyword
-            ? {
-                $or: [
-                    { username: { $regex: req.query.keyword, $options: 'i' } },
-                    { email: { $regex: req.query.keyword, $options: 'i' } },
-                ],
+        const q = req.query.q;
+        const condition = q
+          ? {
+              $or: [
+                { username: { $regex: q, $options: 'i' } }
+              ],
             }
-            : {};
+          : {};
 
-        const users = await User.find(keyword)
-            .find({ _id: { $ne: req.user._id } })
-            .select('username email profileImage bio');
+        const users = await User.find(condition)
+          .find({ _id: { $ne: req.user._id } })
+          .select('username email profileImage bio');
 
         res.json(users);
     } catch (error) {

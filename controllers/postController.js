@@ -1,6 +1,7 @@
 const Post = require("../models/Post");
 const { uploadFile, deleteFile } = require("../utils/uploadToGcp");
 const { sendPushNotification } = require("../utils/notificationService");
+const { Vibrant } = require("node-vibrant/node");
 
 let io;
 
@@ -236,7 +237,10 @@ exports.deleteComment = async (req, res) => {
 exports.addReply = async (req, res) => {
   try {
     const { content } = req.body;
-    const post = await Post.findById(req.params.id).populate("user","username profileImage");
+    const post = await Post.findById(req.params.id).populate(
+      "user",
+      "username profileImage"
+    );
 
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
@@ -254,10 +258,10 @@ exports.addReply = async (req, res) => {
 
     await post.save();
 
-    const commentUser = ()=>{
-      if(typeof comment.user === 'string') return comment.user;
+    const commentUser = () => {
+      if (typeof comment.user === "string") return comment.user;
       return comment.user._id.toString();
-    }
+    };
 
     if (commentUser() !== req.user._id.toString()) {
       await sendPushNotification(
@@ -274,6 +278,31 @@ exports.addReply = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
+};
+
+exports.getVibrantColor = async (req, res) => {
+  const getVibrant = async () => {
+    try {
+      const v = new Vibrant(url);
+      const palette = await v.getPalette();
+      const Arr = palette.LightVibrant.rgb;
+      const rgb = `rgb(${Arr[0]}, ${Arr[1]}, ${Arr[2]})`;
+      return [null, rgb];
+    } catch (error) {
+      return [error.message, null];
+    }
+  };
+
+  const url = req.body.url;
+
+  const [error, rgb] = await getVibrant();
+
+  if (error) {
+    return res.status(500).json({ message: error });
+  }
+
+  res.json({ rgb });
+
 };
 
 exports.setIoForPost = (i) => {

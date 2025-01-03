@@ -9,7 +9,8 @@ const {
     unlikePost,
     addComment,
     deleteComment,
-    addReply
+    addReply,
+    getVibrantColor
 } = require('../controllers/postController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -22,5 +23,7 @@ router.post('/:id/unlike', protect, unlikePost);
 router.post('/:id/comments', protect, addComment);
 router.delete('/:id/comments/:commentId', protect, deleteComment);
 router.post('/:id/comments/:commentId/replies', protect, addReply);
+router.post('/getColor',getVibrantColor);
+
 
 module.exports = router;
