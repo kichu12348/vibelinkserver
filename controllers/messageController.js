@@ -178,7 +178,9 @@ exports.deleteMessage = async (req, res) => {
 
     await Message.findByIdAndDelete(messageId);
     if (message.media) {
+      if(message.media.url){
       await deleteFile(message.media.url.split("/").pop());
+      }
     }
 
     if (conversation) {
