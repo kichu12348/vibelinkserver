@@ -1,5 +1,6 @@
 const {Storage} = require('@google-cloud/storage');
 const  fs = require('fs');
+const path = require('path');
 
 const storage = new Storage({
     keyFilename: "keys.json",
@@ -7,6 +8,15 @@ const storage = new Storage({
 
 const bucketName = "vibe-link-public";
 const bucket = storage.bucket(bucketName);
+
+
+
+const deleteFileFromUploads = (file) => {
+    const filePath = path.join(__dirname, `../uploads/${file}`);
+    fs.unlink(filePath, (err) => {
+        if (err) console.log("Error removing file:", err.message);
+    });
+};
 
 async function uploadFile(file) {
     try {
@@ -29,9 +39,7 @@ async function uploadFile(file) {
 
             blobStream.on("finish", () => {
                 const publicUrl = `https://storage.googleapis.com/${bucketName}/${file.name}`;
-                fs.unlink(filePath, (err) => {
-                    if (err) console.log("Error removing file:", err);
-                });
+                deleteFileFromUploads(file.name);
                 resolve(publicUrl);
             });
 
@@ -51,5 +59,7 @@ const deleteFile = async (file) => {
         console.log("Error deleting file:", error.message);
     }   
 }
+
+
 
 module.exports = {uploadFile,deleteFile};
