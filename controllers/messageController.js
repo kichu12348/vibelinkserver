@@ -1,6 +1,6 @@
 const Message = require("../models/Message");
 const Conversation = require("../models/Conversation");
-const { uploadFile } = require("../utils/uploadToGcp");
+const { uploadFile, deleteFile } = require("../utils/uploadToGcp");
 const { sendPushNotification } = require("../utils/notificationService");
 
 let io;
@@ -105,6 +105,9 @@ exports.sendMessage = async (req, res) => {
         );
       }
     });
+    io.to(`chat:${conversation._id.toString()}`).emit("userStopTyping", {
+      userId: senderId,
+    });
 
     res.status(201).json({
       message,
@@ -174,6 +177,9 @@ exports.deleteMessage = async (req, res) => {
     ).populate("participants.user");
 
     await Message.findByIdAndDelete(messageId);
+    if (message.media) {
+      await deleteFile(message.media.url.split("/").pop());
+    }
 
     if (conversation) {
       conversation.participants.forEach((participant) => {
