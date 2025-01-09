@@ -11,7 +11,7 @@ const { protect } = require('../middleware/authMiddleware');
 
 router.post('/', protect, sendMessage);
 router.get('/conversations', protect, getConversations);
-router.get('/:conversationId', protect, getMessages);
+router.get('/:conversationId/:topMessageId', protect, getMessages);
 router.delete('/:messageId', protect, deleteMessage);
 router.post('/upload', protect, uploadFileToGCPBucket);
 

@@ -2,6 +2,7 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { uploadFile, deleteFile } = require("../utils/uploadToGcp");
+const { sendPushNotification } = require("../utils/notificationService");
 
 let io;
 
@@ -165,6 +166,12 @@ exports.followUser = async (req, res) => {
       followerId: req.user._id,
       followedId: req.params.id,
     });
+    sendPushNotification(
+      req.params.id,
+      "New Follower",
+      `${req.user.username} started following you`,
+      { type: "follow", userId: req.user._id.toString() }
+    );
     res.json({ message: "Successfully followed user" });
   } catch (error) {
     res.status(500).json({ message: `Server error: ${error.message}` });
@@ -212,14 +219,12 @@ exports.unfollowUser = async (req, res) => {
 exports.searchUsers = async (req, res) => {
   try {
     const q = req.query.q;
-    const condition = q
-      ? {
-          $or: [{ username: { $regex: q, $options: "i" } }],
-        }
-      : {};
+    const query = {
+      _id: { $ne: req.user._id }, 
+      ...(q ? { username: { $regex: q, $options: "i" } } : {}) 
+    };
 
-    const users = await User.find(condition)
-      .find({ _id: { $ne: req.user._id } })
+    const users = await User.find(query)
       .select("username email profileImage bio");
 
     res.json(users);

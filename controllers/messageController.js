@@ -138,25 +138,36 @@ exports.getConversations = async (req, res) => {
 
 exports.getMessages = async (req, res) => {
   try {
-    const { conversationId } = req.params;
-    const userId = req.user._id;
+    const { conversationId, topMessageId } = req.params; 
+    const limit = 10; 
 
-    // Get messages without conversation verification first
-    const messages = await Message.find({ conversation: conversationId })
-      .populate("sender", "username profileImage")
-      .populate("sharedPost") // Populate shared post details
-      .sort({ createdAt: 1 }); // Sort by oldest first
+   
+    let query = { conversation: conversationId };
 
-    if (!messages) {
-      return res.status(404).json({ message: "No messages found" });
+    if (topMessageId && topMessageId !== "nope") {
+      const topMessage = await Message.findById(topMessageId);
+      if (!topMessage) {
+        return res.status(404).json({ message: "Top message not found" });
+      }
+
+     
+      query.createdAt = { $lt: topMessage.createdAt }; 
     }
 
-    res.json(messages);
+    
+    const messages = await Message.find(query)
+      .populate("sender", "username profileImage") 
+      .populate("sharedPost") 
+      .sort({ createdAt: -1 }) // Sort by latest first
+      .limit(limit); // Limit the results to 10
+
+    res.json(messages.reverse());
   } catch (error) {
     console.log("Get messages error:", error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: `Server error: ${error.message}` });
   }
 };
+
 
 exports.deleteMessage = async (req, res) => {
   try {
