@@ -11,6 +11,7 @@ const {setIoForUser} = require('./controllers/userController');
 const {setIoForPost} = require('./controllers/postController');
 const {setIoForMessage, handleSocketEvents} = require('./controllers/messageController');
 const {getNumberOfAll} = require('./controllers/publicController');
+const {startHappyNotifs}=require('./utils/happyNotifs');
 
 const app = express();
 
@@ -46,9 +47,11 @@ app.get("/", async (req, res) => {
     });
 });
 
+
 const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => {
     console.log(`Server is running on port: ${PORT}`);
+    startHappyNotifs();
 });
 
 // Socket.IO setup
