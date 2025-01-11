@@ -12,10 +12,22 @@ const timeInterval = 1000 * 60 * 60 * 5; // 5 hours
 const genAI = new GoogleGenerativeAI(process.env.GENERATIVE_AI_API_KEY);
 
 const safetySettings = [
-  { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-  { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
-  { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
-  { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+  {
+    category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
 ];
 
 const generationConfig = { temperature: 0.5 };
@@ -63,7 +75,8 @@ const happyNotifs = async () => {
 
     await Promise.all(
       users.map(async (user) => {
-        const { username } = user;
+        const { username, expoPushToken } = user;
+        if (!expoPushToken) return;
         const title = getRandomTitle(username);
         const { text: body, error } = await generateResp(username, indiaTime);
 
@@ -73,7 +86,10 @@ const happyNotifs = async () => {
         }
 
         if (body.length > 200) {
-          console.log("Generated message exceeds character limit:", body.length);
+          console.log(
+            "Generated message exceeds character limit:",
+            body.length
+          );
           return;
         }
 
