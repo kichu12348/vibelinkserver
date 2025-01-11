@@ -99,7 +99,7 @@ exports.sendMessage = async (req, res) => {
             conversationId: conversation._id,
             receiverId: participant.user._id,
             username: participant.user.username,
-            profileImage: participant.user.profileImage,
+            profileImage: req.user.profileImage,
             participants: conversation.participants,
           }
         );
