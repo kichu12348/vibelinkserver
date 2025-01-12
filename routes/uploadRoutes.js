@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const { protect } = require('../middleware/authMiddleware');
+const { deleteFileFromGcp } = require('../utils/uploadToGcp');
 
 router.post('/', protect, async (req, res) => {
     try {
@@ -20,5 +21,7 @@ router.post('/', protect, async (req, res) => {
         res.status(500).json({ message: 'Error uploading file' });
     }
 });
+
+router.post('/delete', protect, deleteFileFromGcp);
 
 module.exports = router;
