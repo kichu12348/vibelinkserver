@@ -10,8 +10,10 @@ const fs = require('fs');
 const {setIoForUser} = require('./controllers/userController');
 const {setIoForPost} = require('./controllers/postController');
 const {setIoForMessage, handleSocketEvents} = require('./controllers/messageController');
+const {setIoForStory} = require('./controllers/storyController');
 const {getNumberOfAll} = require('./controllers/publicController');
 const {startHappyNotifs}=require('./utils/happyNotifs');
+const storyRoutes = require('./routes/storyRoutes');
 
 const app = express();
 
@@ -35,6 +37,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/upload', require('./routes/uploadRoutes'));
+app.use('/api/stories', storyRoutes);
 
 app.get("/", async (req, res) => {
     const {users,posts,messages} = await getNumberOfAll();
@@ -60,6 +63,7 @@ const io = SocketIo(server);
 setIoForUser(io);
 setIoForPost(io);
 setIoForMessage(io);
+setIoForStory(io);
 
 io.on("connection", (socket) => {
     socket.on("join", (userId) => {

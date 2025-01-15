@@ -296,13 +296,11 @@ exports.getVibrantColor = async (req, res) => {
   const url = req.body.url;
 
   const [error, rgb] = await getVibrant();
-
   if (error) {
     return res.status(500).json({ message: error });
   }
 
   res.json({ rgb });
-
 };
 
 exports.setIoForPost = (i) => {

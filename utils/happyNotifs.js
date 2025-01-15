@@ -79,21 +79,16 @@ const happyNotifs = async () => {
         if (!expoPushToken) return;
         const title = getRandomTitle(username);
         const { text: body, error } = await generateResp(username, indiaTime);
+        let message = body;
 
         if (error) {
           console.log("Error in happyNotifs:", error.message);
           return;
         }
 
-        if (body.length > 200) {
-          console.log(
-            "Generated message exceeds character limit:",
-            body.length
-          );
-          return;
-        }
-
-        sendPushNotification(user._id.toString(), title, body);
+        if (body.length > 200) message = body.slice(0, 200) + "...";
+  
+        sendPushNotification(user._id.toString(), title, message);
       })
     );
   } catch (error) {
