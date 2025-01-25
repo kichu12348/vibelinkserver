@@ -73,19 +73,12 @@ exports.sendMessage = async (req, res) => {
       { path: "sender", select: "username profileImage" },
       {
         path: "sharedPost",
-        populate: { path: "user", select: "username profileImage" },
-        populate: {
-          path: "comments.user",
-          select: "username profileImage"
-        },
-        populate: {
-          path: "comments.replies.user",
-          select: "username profileImage"
-        },
-        populate: {
-          path:"likes",
-          select: "username profileImage"
-        },
+        populate: [
+          { path: "user", select: "username profileImage" },
+          { path: "comments.user", select: "username profileImage" },
+          { path: "comments.replies.user", select: "username profileImage" },
+          { path: "likes", select: "username profileImage" },
+        ],
       },
     ]);
     await conversation.populate("participants.user", "username profileImage");
@@ -169,15 +162,12 @@ exports.getMessages = async (req, res) => {
         { path: "sender", select: "username profileImage" },
         {
           path: "sharedPost",
-          populate: { path: "user", select: "username profileImage" },
-          populate: {
-            path: "comments.user",
-            select: "username profileImage"
-          },
-          populate: {
-            path: "comments.replies.user",
-            select: "username profileImage"
-          },
+          populate: [
+            { path: "user", select: "username profileImage" },
+            { path: "comments.user", select: "username profileImage" },
+            { path: "comments.replies.user", select: "username profileImage" },
+            { path: "likes", select: "username profileImage" },
+          ],
         },
       ])
       .sort({ createdAt: -1 }) // Sort by latest first
