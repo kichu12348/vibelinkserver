@@ -74,6 +74,11 @@ exports.sendMessage = async (req, res) => {
       {
         path: "sharedPost",
         populate: { path: "user", select: "username profileImage" },
+        populate: {
+          path: "comments.user",
+          select: "username profileImage",
+          populate: { path: "replies.user", select: "username profileImage" },
+        },
       },
     ]);
     await conversation.populate("participants.user", "username profileImage");
@@ -138,10 +143,9 @@ exports.getConversations = async (req, res) => {
 
 exports.getMessages = async (req, res) => {
   try {
-    const { conversationId, topMessageId } = req.params; 
-    const limit = 10; 
+    const { conversationId, topMessageId } = req.params;
+    const limit = 10;
 
-   
     let query = { conversation: conversationId };
 
     if (topMessageId && topMessageId !== "nope") {
@@ -150,24 +154,31 @@ exports.getMessages = async (req, res) => {
         return res.status(404).json({ message: "Top message not found" });
       }
 
-     
-      query.createdAt = { $lt: topMessage.createdAt }; 
+      query.createdAt = { $lt: topMessage.createdAt };
     }
 
-    
     const messages = await Message.find(query)
-      .populate("sender", "username profileImage") 
-      .populate("sharedPost") 
+      .populate([
+        { path: "sender", select: "username profileImage" },
+        {
+          path: "sharedPost",
+          populate: { path: "user", select: "username profileImage" },
+          populate: {
+            path: "comments.user",
+            select: "username profileImage",
+            populate: { path: "replies.user", select: "username profileImage" },
+          },
+        },
+      ])
       .sort({ createdAt: -1 }) // Sort by latest first
       .limit(limit); // Limit the results to 10
 
     res.json(messages.reverse());
   } catch (error) {
-    console.log("Get messages error:", error);
+    console.log("Get messages error:", error.message);
     res.status(500).json({ message: `Server error: ${error.message}` });
   }
 };
-
 
 exports.deleteMessage = async (req, res) => {
   try {
@@ -189,8 +200,8 @@ exports.deleteMessage = async (req, res) => {
 
     await Message.findByIdAndDelete(messageId);
     if (message.media) {
-      if(message.media.url){
-      await deleteFile(message.media.url.split("/").pop());
+      if (message.media.url) {
+        await deleteFile(message.media.url.split("/").pop());
       }
     }
 
