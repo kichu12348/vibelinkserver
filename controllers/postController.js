@@ -9,12 +9,37 @@ exports.createPost = async (req, res) => {
   try {
     const { content, media } = req.body;
 
+
+    const getVibrant = async (url) => {
+      try {
+        const v = new Vibrant(url);
+        const palette = await v.getPalette();
+        const Arr = palette.LightVibrant.rgb;
+        const rgb = `rgb(${Arr[0]}, ${Arr[1]}, ${Arr[2]})`;
+        return [null, rgb];
+      } catch (error) {
+        return [error.message, "#23252F"];
+      }
+    };
+
+    if(!media[0]?.url){
+      const post = await Post.create({
+        user: req.user._id,
+        content,
+      });
+      await post.populate("user", "username profileImage");
+      io.emit("newPost", post);
+      return res.status(201).json(post);
+    };
+
     const fileName = media[0]?.url.split("/").pop();
     const url = await uploadFile({ name: fileName });
+    const [err,color] = await getVibrant(url);
     const post = await Post.create({
       user: req.user._id,
       content,
       image: url,
+      color: color,
     });
 
     await post.populate("user", "username profileImage");
@@ -29,20 +54,50 @@ exports.getPosts = async (req, res) => {
   try {
     const posts = await Post.find()
       .populate("user", "username profileImage")
-      .sort({ createdAt: -1 });
-    //populate('comments.user', 'username profileImage')
-    res.json(posts);
+      .sort({ createdAt: -1 })
+      .populate("comments.user", "username profileImage")
+      .populate("comments.replies.user", "username profileImage")
+      .populate("likes", "username profileImage");
+
+
+    let allPosts = [];
+
+    const getVibrant = async (url) => {
+      try {
+        const v = new Vibrant(url);
+        const palette = await v.getPalette();
+        const Arr = palette.LightVibrant.rgb;
+        const rgb = `rgb(${Arr[0]}, ${Arr[1]}, ${Arr[2]})`;
+        return [null, rgb];
+      } catch (error) {
+        return [error.message, "#23252F"];
+      }
+    };
+
+    for (const post of posts) {
+      if(post.image && post.color==="#23252F"){
+        const [err,color] = await getVibrant(post.image);
+        await Post.findByIdAndUpdate(post._id, {color: color});
+        post.color = color;
+        allPosts.push(post);
+      }
+      else{
+        allPosts.push(post);
+      }
+    };
+    res.json(allPosts);
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: `Server error: ${error.message}` });
   }
 };
 
 exports.getPost = async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id).populate(
-      "user",
-      "username profileImage"
-    );
+    const post = await Post.findById(req.params.id)
+      .populate("user", "username profileImage")
+      .populate("comments.user", "username profileImage")
+      .populate("comments.replies.user", "username profileImage")
+      .populate("likes", "username profileImage");
 
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
@@ -83,10 +138,11 @@ exports.deletePost = async (req, res) => {
 
 exports.likePost = async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id).populate(
-      "user",
-      "username profileImage"
-    );
+    const post = await Post.findById(req.params.id)
+      .populate("user", "username profileImage")
+      .populate("likes", "username profileImage")
+      .populate("comments.user", "username profileImage")
+      .populate("comments.replies.user", "username profileImage");
 
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
@@ -135,10 +191,11 @@ exports.likePost = async (req, res) => {
 
 exports.unlikePost = async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id).populate(
-      "user",
-      "username profileImage"
-    );
+    const post = await Post.findById(req.params.id)
+      .populate("user", "username profileImage")
+      .populate("likes", "username profileImage")
+      .populate("comments.user", "username profileImage")
+      .populate("comments.replies.user", "username profileImage");
 
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
@@ -165,10 +222,11 @@ exports.addComment = async (req, res) => {
   try {
     const { content } = req.body;
 
-    const post = await Post.findById(req.params.id).populate(
-      "user",
-      "username profileImage"
-    );
+    const post = await Post.findById(req.params.id)
+      .populate("user", "username profileImage")
+      .populate("likes", "username profileImage")
+      .populate("comments.user", "username profileImage")
+      .populate("comments.replies.user", "username profileImage");
 
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
@@ -201,10 +259,11 @@ exports.addComment = async (req, res) => {
 
 exports.deleteComment = async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id).populate(
-      "user",
-      "username profileImage"
-    );
+    const post = await Post.findById(req.params.id)
+      .populate("user", "username profileImage")
+      .populate("likes", "username profileImage")
+      .populate("comments.user", "username profileImage")
+      .populate("comments.replies.user", "username profileImage");
 
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
@@ -237,10 +296,11 @@ exports.deleteComment = async (req, res) => {
 exports.addReply = async (req, res) => {
   try {
     const { content } = req.body;
-    const post = await Post.findById(req.params.id).populate(
-      "user",
-      "username profileImage"
-    );
+    const post = await Post.findById(req.params.id)
+      .populate("user", "username profileImage")
+      .populate("likes", "username profileImage")
+      .populate("comments.user", "username profileImage")
+      .populate("comments.replies.user", "username profileImage");
 
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
@@ -280,8 +340,9 @@ exports.addReply = async (req, res) => {
   }
 };
 
+
 exports.getVibrantColor = async (req, res) => {
-  const getVibrant = async () => {
+  const getVibrant = async (url) => {
     try {
       const v = new Vibrant(url);
       const palette = await v.getPalette();
@@ -293,9 +354,7 @@ exports.getVibrantColor = async (req, res) => {
     }
   };
 
-  const url = req.body.url;
-
-  const [error, rgb] = await getVibrant();
+  const [error, rgb] = await getVibrant(req.body.url);
   if (error) {
     return res.status(500).json({ message: error });
   }

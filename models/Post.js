@@ -43,6 +43,10 @@ const postSchema = new mongoose.Schema({
     maxlength: 500,
   },
   image: String,
+  color: {
+    type: String,
+    default: "#23252F",
+  },
   likes: [
     {
       type: mongoose.Schema.Types.ObjectId,

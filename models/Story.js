@@ -20,6 +20,10 @@ const storySchema = new mongoose.Schema({
         required: true
     },
     media: [mediaSchema],
+    color:{
+        type: String,
+        default: "#FF6B6B",
+    },
     lastUpdated: {
         type: Date,
         default: Date.now
