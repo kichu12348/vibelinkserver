@@ -76,8 +76,15 @@ exports.sendMessage = async (req, res) => {
         populate: { path: "user", select: "username profileImage" },
         populate: {
           path: "comments.user",
-          select: "username profileImage",
-          populate: { path: "replies.user", select: "username profileImage" },
+          select: "username profileImage"
+        },
+        populate: {
+          path: "comments.replies.user",
+          select: "username profileImage"
+        },
+        populate: {
+          path:"likes",
+          select: "username profileImage"
         },
       },
     ]);
@@ -165,8 +172,11 @@ exports.getMessages = async (req, res) => {
           populate: { path: "user", select: "username profileImage" },
           populate: {
             path: "comments.user",
-            select: "username profileImage",
-            populate: { path: "replies.user", select: "username profileImage" },
+            select: "username profileImage"
+          },
+          populate: {
+            path: "comments.replies.user",
+            select: "username profileImage"
           },
         },
       ])
