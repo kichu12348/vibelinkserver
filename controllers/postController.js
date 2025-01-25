@@ -154,7 +154,6 @@ exports.likePost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id)
       .populate("user", "username profileImage")
-      .populate("likes", "username profileImage")
       .populate("comments.user", "username profileImage")
       .populate("comments.replies.user", "username profileImage");
 
@@ -185,14 +184,18 @@ exports.likePost = async (req, res) => {
             (post.content.length > 50 ? "..." : ""),
         },
       });
+
+      await sendPushNotification(
+        post.user._id.toString(),
+        "New Like",
+        `${req.user.username} liked your post`,
+        { PostId: post._id }
+      );
     }
 
-    await sendPushNotification(
-      post.user._id.toString(),
-      "New Like",
-      `${req.user.username} liked your post`,
-      { PostId: post._id }
-    );
+    
+
+    await post.populate("likes", "username profileImage");
 
     // Emit real-time update to all clients
     io.emit("postUpdated", post);
@@ -207,7 +210,6 @@ exports.unlikePost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id)
       .populate("user", "username profileImage")
-      .populate("likes", "username profileImage")
       .populate("comments.user", "username profileImage")
       .populate("comments.replies.user", "username profileImage");
 
@@ -224,11 +226,13 @@ exports.unlikePost = async (req, res) => {
     );
     await post.save();
 
+    await post.populate("likes", "username profileImage");
+
     io.emit("postUpdated", post);
 
     res.json(post);
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: `Server Error: ${error.message}` });
   }
 };
 
@@ -237,10 +241,7 @@ exports.addComment = async (req, res) => {
     const { content } = req.body;
 
     const post = await Post.findById(req.params.id)
-      .populate("user", "username profileImage")
-      .populate("likes", "username profileImage")
-      .populate("comments.user", "username profileImage")
-      .populate("comments.replies.user", "username profileImage");
+      .populate("user", "username profileImage");
 
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
@@ -263,11 +264,17 @@ exports.addComment = async (req, res) => {
       );
     }
 
-    io.emit("postUpdated", post);
+    const newPost = await Post.findById(req.params.id)
+    .populate("user", "username profileImage")
+    .populate("likes", "username profileImage")
+    .populate("comments.user", "username profileImage")
+    .populate("comments.replies.user", "username profileImage");
 
-    res.json(post);
+    io.emit("postUpdated", newPost);
+
+    res.json(newPost);
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: `Server Error :${error.message}` });
   }
 };
 
@@ -311,11 +318,7 @@ exports.addReply = async (req, res) => {
   try {
     const { content } = req.body;
     const post = await Post.findById(req.params.id)
-      .populate("user", "username profileImage")
-      .populate("likes", "username profileImage")
-      .populate("comments.user", "username profileImage")
-      .populate("comments.replies.user", "username profileImage");
-
+      .populate("user", "username profileImage");
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
     }
@@ -346,11 +349,17 @@ exports.addReply = async (req, res) => {
       );
     }
 
-    io.emit("postUpdated", post);
+    const newPost = await Post.findById(req.params.id)
+    .populate("user", "username profileImage")
+    .populate("likes", "username profileImage")
+    .populate("comments.user", "username profileImage")
+    .populate("comments.replies.user", "username profileImage");
 
-    res.json(post);
+    io.emit("postUpdated", newPost);
+
+    res.json(newPost);
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: `Server Error: ${error.message}` });
   }
 };
 
