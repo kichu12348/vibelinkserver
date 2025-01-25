@@ -10,12 +10,26 @@ exports.createPost = async (req, res) => {
     const { content, media } = req.body;
 
 
+    const checkIfCloseToWhite = (rgb) => {
+      const [r, g, b] = rgb;
+      const test = r > 200 && g > 200 && b > 200;
+      if (!test) return [test, null];
+      const offset = 0.5;
+      const newRGB = `rgb(${r*offset}, ${g *offset}, ${b * offset})`;
+      return [test, newRGB];
+    }
+
+
     const getVibrant = async (url) => {
       try {
         const v = new Vibrant(url);
         const palette = await v.getPalette();
         const Arr = palette.LightVibrant.rgb;
         const rgb = `rgb(${Arr[0]}, ${Arr[1]}, ${Arr[2]})`;
+        const [isCloseToWhite, newRGB] = checkIfCloseToWhite(Arr);
+        if (isCloseToWhite) {
+          return [null, newRGB];
+        }
         return [null, rgb];
       } catch (error) {
         return [error.message, "#23252F"];
