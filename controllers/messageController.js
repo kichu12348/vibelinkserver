@@ -5,6 +5,9 @@ const { sendPushNotification } = require("../utils/notificationService");
 
 let io;
 
+
+const convoActiveUsers = new Map();
+
 // Get or create conversation between users
 const getOrCreateConversation = async (participants) => {
   try {
@@ -96,6 +99,7 @@ exports.sendMessage = async (req, res) => {
     // Send push notification to receiver
     conversation.participants.forEach(async (participant) => {
       if (participant.user._id.toString() !== senderId.toString()) {
+        if(convoActiveUsers.has(participant.user._id.toString())) return;
         await sendPushNotification(
           participant.user._id,
           message.sender.username || "New message",
@@ -288,4 +292,11 @@ exports.handleSocketEvents = (socket) => {
   socket.on("stopTyping", ({ conversationId, userId }) => {
     socket.to(`chat:${conversationId}`).emit("userStopTyping", { userId });
   });
+
+  socket.on("addUserToList",({userId,activeId})=>{
+    convoActiveUsers.set(userId,activeId);
+  })
+  socket.on("removeUserFromList",userId=>{
+    convoActiveUsers.delete(userId);
+  })
 };
