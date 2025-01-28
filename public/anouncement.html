@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>System Broadcast</title>
+    <style>
+        :root {
+            --primary: #FF0090;
+            --secondary: #00E0FF;
+            --background: #0F111A;
+            --card: #151827;
+            --text-primary: #EAF0FF;
+            --text-secondary: #8A94B9;
+            --success: #00FF94;
+            --error: #FF3D3D;
+            --accent: #FFC300;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--background);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary);
+            box-shadow: 0 0 25px var(--primary);
+            z-index: 1;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            padding: 2rem;
+            background: var(--card);
+            border-radius: 12px;
+            box-shadow: 0 0 40px rgba(255, 0, 144, 0.1);
+            border: 1px solid rgba(255, 0, 144, 0.1);
+            animation: containerGlow 4s ease-in-out infinite;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px var(--primary);
+        }
+
+        input, textarea {
+            width: 100%;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(15, 17, 26, 0.6);
+            border: 1px solid var(--secondary);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        textarea {
+            min-height: 150px;
+            resize: none;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(255, 0, 144, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 50px;
+            background: var(--primary);
+            color: var(--text-primary);
+            box-shadow: 0 0 20px rgba(255, 0, 144, 0.2);
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                120deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:hover {
+            background: #FF1A9E;
+            box-shadow: 0 0 20px rgba(255, 0, 144, 0.4);
+            transform: translateY(-2px);
+        }
+
+        @keyframes containerGlow {
+            0%, 100% {
+                box-shadow: 0 0 40px rgba(255, 0, 144, 0.1);
+            }
+            50% {
+                box-shadow: 0 0 60px rgba(255, 0, 144, 0.2);
+            }
+        }
+
+        .status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem;
+            border-radius: 6px;
+            color: var(--text-primary);
+            transform: translateX(200%);
+            transition: transform 0.3s ease;
+        }
+
+        .status.success {
+            background: var(--success);
+            transform: translateX(0);
+        }
+
+        .status.error {
+            background: var(--error);
+            transform: translateX(0);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                width: 95%;
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>System Broadcast</h1>
+        <form id="announcementForm">
+            <input name="title" placeholder="Broadcast Title" required autocomplete="off" />
+            <textarea name="body" placeholder="Broadcast Message" required></textarea>
+            <button type="submit">Broadcast Message</button>
+        </form>
+    </div>
+    <div id="status" class="status"></div>
+
+    <script>
+        const form = document.getElementById('announcementForm');
+        const status = document.getElementById('status');
+
+        const showStatus = (message, type) => {
+            status.textContent = message;
+            status.className = `status ${type}`;
+            setTimeout(() => {
+                status.className = 'status';
+            }, 3000);
+        };
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const data = {
+                title: formData.get('title'),
+                body: formData.get('body'),
+            };
+
+            try {
+                const response = await fetch('/api/anouncement', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                });
+
+                if (response.ok) {
+                    showStatus('Broadcast sent successfully', 'success');
+                    form.reset();
+                } else {
+                    showStatus('Failed to send broadcast', 'error');
+                }
+            } catch (error) {
+                showStatus('Error sending broadcast', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

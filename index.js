@@ -14,6 +14,7 @@ const {setIoForStory} = require('./controllers/storyController');
 const {getNumberOfAll} = require('./controllers/publicController');
 const {startHappyNotifs}=require('./utils/happyNotifs');
 const storyRoutes = require('./routes/storyRoutes');
+const { sendAnnouncementToAll } = require('./utils/notificationService');
 
 const app = express();
 
@@ -50,6 +51,21 @@ app.get("/", async (req, res) => {
     });
 });
 
+app.get('/api/latest-app-version-link', (req, res) => {
+    const latestAppVersionLink = null;
+    res.json({link: latestAppVersionLink});
+});
+
+app.get('/api/anouncement', (req, res) => {
+    const html = fs.readFileSync(path.join(__dirname, 'public', 'anouncement.html'), 'utf8');
+    res.send(html);
+});
+
+app.post('/api/anouncement', async (req, res) => {
+    const { title, body } = req.body;
+    await sendAnnouncementToAll(title, body);
+    res.status(200).json({ message: 'Announcement sent to all users.' });
+});
 
 const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => {
