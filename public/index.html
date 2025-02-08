@@ -6,7 +6,7 @@
     <meta name="description" content="Vibe Link - Connect, Share, and Create amazing moments together">
     <title>Vibe Link</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <meta name="theme-color" content="#8b5cf6">
+    <meta name="theme-color" content="#0f172a">
 </head>
 <body class="theme-default">
     <div class="container">
@@ -95,6 +95,7 @@
         font-weight: 600;
         background: linear-gradient(45deg, var(--primary-color), #f472b6);
         -webkit-background-clip: text;
+        background-clip: text;
         -webkit-text-fill-color: transparent;
         margin-bottom: 0.5rem;
         cursor: pointer;
@@ -281,7 +282,7 @@
                 konamiIndex++;
                 if (konamiIndex === konamiCode.length) {
                     document.body.classList.add('theme-matrix');
-                    topBar.setAttribute('content', '#00ff00');
+                    topBar.setAttribute('content', '#021702');
                     document.querySelector('.secret-footer').style.opacity = '1';
                     konamiIndex = 0;
                 }
@@ -296,7 +297,7 @@
             clickCount++;
             if (clickCount === 3) {
                 document.body.classList.add('theme-retro');
-                topBar.setAttribute('content', '#f65c8b');
+                topBar.setAttribute('content', '#2a0f17');
             }
         });
 
