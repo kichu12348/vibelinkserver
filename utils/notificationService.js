@@ -40,6 +40,8 @@ async function sendPushNotification(userId, title, body, data = {}) {
     }
 }
 
+let tickets = [];
+
 async function sendAnnouncementToAll(title, body, data = {}) {
     try {
         const users = await User.find({ expoPushToken: { $ne: null } });
@@ -53,7 +55,6 @@ async function sendAnnouncementToAll(title, body, data = {}) {
         }));
 
         const chunks = expo.chunkPushNotifications(messages);
-        const tickets = [];
         for (let chunk of chunks) {
             try {
                 const ticketChunk = await expo.sendPushNotificationsAsync(chunk);
@@ -67,6 +68,30 @@ async function sendAnnouncementToAll(title, body, data = {}) {
         console.error('Error sending announcement:', error);
     }
 }
+
+
+async function deleteNotification(tickets) {
+    try {
+        const receiptIds = tickets.map((ticket) => ticket.id);
+        const receiptIdChunks = expo.chunkPushNotificationReceiptIds(receiptIds);
+        for (let chunk of receiptIdChunks) {
+            try {
+                const receipts = await expo.getPushNotificationReceiptsAsync(chunk);
+                for (let receiptId in receipts) {
+                    const { status } = receipts[receiptId];
+                    if (status === 'error') {
+                        const { message } = receipts[receiptId];
+                        console.error(`There was an error sending a notification: ${message}`);
+                    }
+                }
+            } catch (error) {
+                console.error('Error deleting notification:', error);
+            }
+        }
+    } catch (error) {
+        console.error('Error deleting notification:', error);
+    }
+};
 
 module.exports = {
     sendPushNotification,
