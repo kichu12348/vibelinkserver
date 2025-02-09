@@ -1,12 +1,15 @@
 const Message = require("../models/Message");
 const Conversation = require("../models/Conversation");
 const { uploadFile, deleteFile } = require("../utils/uploadToGcp");
-const { sendPushNotification } = require("../utils/notificationService");
+const {
+  sendPushNotification,
+  deleteNotification,
+} = require("../utils/notificationService");
 
 let io;
 
-
 const convoActiveUsers = new Map();
+const sendNotifsMap = new Map();
 
 // Get or create conversation between users
 const getOrCreateConversation = async (participants) => {
@@ -99,8 +102,8 @@ exports.sendMessage = async (req, res) => {
     // Send push notification to receiver
     conversation.participants.forEach(async (participant) => {
       if (participant.user._id.toString() !== senderId.toString()) {
-        if(convoActiveUsers.has(participant.user._id.toString())) return;
-        await sendPushNotification(
+        if (convoActiveUsers.has(participant.user._id.toString())) return;
+        const tickets = await sendPushNotification(
           participant.user._id,
           message.sender.username || "New message",
           content || "Sent you a message",
@@ -112,6 +115,13 @@ exports.sendMessage = async (req, res) => {
             participants: conversation.participants,
           }
         );
+
+        if (tickets) {
+          sendNotifsMap.set(
+            message._id.toString(),
+            tickets // Save tickets for later use
+          );
+        }
       }
     });
     io.to(`chat:${conversation._id.toString()}`).emit("userStopTyping", {
@@ -215,6 +225,8 @@ exports.deleteMessage = async (req, res) => {
           io.to(participant.user._id.toString()).emit("deletedMessage", {
             messageId,
           });
+          const tickets = sendNotifsMap.get(messageId);
+          if (tickets) deleteNotification(tickets);
         }
       });
     }
@@ -293,10 +305,10 @@ exports.handleSocketEvents = (socket) => {
     socket.to(`chat:${conversationId}`).emit("userStopTyping", { userId });
   });
 
-  socket.on("addUserToList",({userId,activeId})=>{
-    convoActiveUsers.set(userId,activeId);
-  })
-  socket.on("removeUserFromList",userId=>{
+  socket.on("addUserToList", ({ userId, activeId }) => {
+    convoActiveUsers.set(userId, activeId);
+  });
+  socket.on("removeUserFromList", (userId) => {
     convoActiveUsers.delete(userId);
-  })
+  });
 };
