@@ -226,7 +226,10 @@ exports.deleteMessage = async (req, res) => {
             messageId,
           });
           const tickets = sendNotifsMap.get(messageId);
-          if (tickets) deleteNotification(tickets);
+          if (tickets) {
+            deleteNotification(tickets);
+            sendNotifsMap.delete(messageId);
+          }
         }
       });
     }
