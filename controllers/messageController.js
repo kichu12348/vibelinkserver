@@ -224,6 +224,7 @@ exports.deleteMessage = async (req, res) => {
         if (participant.user._id.toString() !== userId.toString()) {
           io.to(participant.user._id.toString()).emit("deletedMessage", {
             messageId,
+            conversationId: conversation._id.toString(),
           });
           const tickets = sendNotifsMap.get(messageId);
           if (tickets) {
