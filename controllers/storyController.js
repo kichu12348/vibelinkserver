@@ -1,5 +1,5 @@
 const Story = require("../models/Story");
-const { uploadFile } = require("../utils/uploadToGcp");
+const { uploadFile, deleteFile } = require("../utils/uploadToGcp");
 const { Vibrant } = require("node-vibrant/node");
 
 let io;
@@ -24,7 +24,7 @@ const cleanupExpiredStories = async () => {
       );
 
       if (story.media.length === 0) {
-        await story.remove(); // This will trigger the pre-remove hook
+        await Story.findByIdAndDelete(story._id.toString());
       } else {
         await story.save();
       }
