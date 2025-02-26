@@ -158,7 +158,7 @@ exports.getConversations = async (req, res) => {
 exports.getMessages = async (req, res) => {
   try {
     const { conversationId, topMessageId } = req.params;
-    const limit = 10;
+    const limit = 15;
 
     let query = { conversation: conversationId };
 
