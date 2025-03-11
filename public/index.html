@@ -1,80 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Vibe Link - Connect, Share, and Create amazing moments together">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Vibe Link - Connect, Share, and Create amazing moments together"
+    />
+    <meta
+      name="keywords"
+      content="vibe link, social platform, community, connect, share, create, social network, vibrant community"
+    />
+    <meta name="author" content="Vibe Link Team" />
+    <meta
+      property="og:title"
+      content="Vibe Link - Where Connections Come Alive"
+    />
+    <meta
+      property="og:description"
+      content="Join our vibrant community to create, connect, and share amazing moments together"
+    />
+    <meta
+      property="og:image"
+      content="https://vibelink.onthewifi.com/images/og-image.jpg"
+    />
+    <meta property="og:url" content="https://vibelink.onthewifi.com" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
     <title>Vibe Link</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <meta name="theme-color" content="#0f172a">
-</head>
-<body class="theme-default">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <meta name="theme-color" content="#0f172a" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Vibe Link",
+        "url": "https://vibelink.onthewifi.com",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://vibelink.onthewifi.com/search?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        },
+        "description": "Join our vibrant community and share amazing moments together"
+      }
+    </script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="theme-default">
     <div class="container">
-        <header>
-            <h1 class="title" title="Double click me!">Vibe Link <span class="emoji">✨</span></h1>
-            <div class="subtitle">Where connections come alive</div>
-        </header>
-        <main>
-            <div class="card">
-                <h2>Welcome! <span class="wave">👋</span></h2>
-                <p class="description">Join our vibrant community and share amazing moments together</p>
-                <div class="statistics">
-                    <div class="stat-item">
-                        <span class="stat-number">{{users}}</span>
-                        <span class="stat-label">Users</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">{{posts}}</span>
-                        <span class="stat-label">Posts</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">{{messages}}</span>
-                        <span class="stat-label">Messages</span>
-                    </div>
-                </div>
-                <button class="cta-button">Get Started</button>
+      <header>
+        <h1 class="title" title="Double click me!">
+          Vibe Link <span class="emoji">✨</span>
+        </h1>
+        <div class="subtitle">Where connections come alive</div>
+      </header>
+      <main>
+        <div class="card">
+          <h2>Welcome! <span class="wave">👋</span></h2>
+          <p class="description">
+            Join our vibrant community and share amazing moments together
+          </p>
+          <div class="statistics">
+            <div class="stat-item">
+              <span class="stat-number">{{users}}</span>
+              <span class="stat-label">Users</span>
             </div>
-            <div class="features">
-                <div class="feature-item">🎨 Create</div>
-                <div class="feature-item">🤝 Connect</div>
-                <div class="feature-item">🌟 Share</div>
+            <div class="stat-item">
+              <span class="stat-number">{{posts}}</span>
+              <span class="stat-label">Posts</span>
             </div>
-        </main>
-        <footer class="secret-footer">
-            <p>Press ↑↑↓↓←→←→BA to unlock a surprise!</p>
-        </footer>
+            <div class="stat-item">
+              <span class="stat-number">{{messages}}</span>
+              <span class="stat-label">Messages</span>
+            </div>
+          </div>
+          <button class="cta-button">Get Started</button>
+        </div>
+        <div class="features">
+          <div class="feature-item">🎨 Create</div>
+          <div class="feature-item">🤝 Connect</div>
+          <div class="feature-item">🌟 Share</div>
+        </div>
+      </main>
+      <footer class="secret-footer">
+        <p>Press ↑↑↓↓←→←→BA to unlock a surprise!</p>
+      </footer>
     </div>
 
     <style>
-    :root {
+      :root {
         --bg-color: #0f172a;
         --text-color: #f8fafc;
         --primary-color: #8b5cf6;
         --secondary-color: #1e293b;
         --accent-color: #6d28d9;
-    }
+      }
 
-    /* Theme variations */
-    .theme-retro {
+      /* Theme variations */
+      .theme-retro {
         --bg-color: #2a0f17;
         --text-color: #fcf8fa;
         --primary-color: #f65c8b;
         --secondary-color: #3b1e29;
         --accent-color: #d92868;
-    }
+      }
 
-    .theme-matrix {
+      .theme-matrix {
         --bg-color: #021702;
         --text-color: #00ff00;
         --primary-color: #008000;
         --secondary-color: #0a330a;
         --accent-color: #00cc00;
-    }
+      }
 
-    body {
-        background: linear-gradient(135deg, var(--bg-color), var(--secondary-color));
+      body {
+        background: linear-gradient(
+          135deg,
+          var(--bg-color),
+          var(--secondary-color)
+        );
         color: var(--text-color);
-        font-family: 'Poppins', sans-serif;
+        font-family: "Poppins", sans-serif;
         margin: 0;
         padding: 20px;
         min-height: 100vh;
@@ -82,15 +131,15 @@
         justify-content: center;
         align-items: center;
         transition: all 0.5s ease;
-    }
+      }
 
-    .container {
+      .container {
         max-width: 900px;
         text-align: center;
         padding: 2rem;
-    }
+      }
 
-    .title {
+      .title {
         font-size: 4rem;
         font-weight: 600;
         background: linear-gradient(45deg, var(--primary-color), #f472b6);
@@ -100,15 +149,15 @@
         margin-bottom: 0.5rem;
         cursor: pointer;
         user-select: none;
-    }
+      }
 
-    .subtitle {
+      .subtitle {
         font-size: 1.5rem;
         color: #94a3b8;
         margin-bottom: 3rem;
-    }
+      }
 
-    .card {
+      .card {
         background: rgba(255, 255, 255, 0.05);
         backdrop-filter: blur(10px);
         border-radius: 20px;
@@ -118,38 +167,38 @@
         transition: transform 0.3s ease;
         position: relative;
         overflow: hidden;
-    }
+      }
 
-    .card:hover {
+      .card:hover {
         transform: translateY(-5px);
-    }
+      }
 
-    .card::before {
-        content: '';
+      .card::before {
+        content: "";
         position: absolute;
         top: 0;
         left: -100%;
         width: 100%;
         height: 100%;
         background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.2),
-            transparent
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
         );
         transition: 0.5s;
-    }
+      }
 
-    .card:hover::before {
+      .card:hover::before {
         left: 100%;
-    }
+      }
 
-    .wave {
+      .wave {
         display: inline-block;
         animation: wave 2.5s infinite;
-    }
+      }
 
-    .cta-button {
+      .cta-button {
         background: var(--primary-color);
         color: white;
         border: none;
@@ -159,153 +208,173 @@
         cursor: pointer;
         transition: all 0.3s ease;
         margin-top: 1rem;
-    }
+      }
 
-    .cta-button:hover {
+      .cta-button:hover {
         background: var(--accent-color);
         transform: scale(1.05);
-    }
+      }
 
-    .features {
+      .features {
         display: flex;
         justify-content: center;
         gap: 2rem;
         margin-top: 3rem;
-    }
+      }
 
-    .feature-item {
+      .feature-item {
         background: rgba(255, 255, 255, 0.05);
         padding: 1rem 2rem;
         border-radius: 15px;
         transition: all 0.3s ease;
-    }
+      }
 
-    .feature-item:hover {
+      .feature-item:hover {
         transform: translateY(-5px);
         background: rgba(255, 255, 255, 0.1);
-    }
+      }
 
-    .secret-footer {
+      .secret-footer {
         opacity: 0;
         font-size: 0.8rem;
         color: var(--text-color);
         transition: opacity 0.3s ease;
-    }
+      }
 
-    .emoji {
+      .emoji {
         display: inline-block;
         transition: transform 0.3s ease;
-    }
+      }
 
-    .emoji:hover {
+      .emoji:hover {
         transform: rotate(360deg) scale(1.2);
-    }
+      }
 
-    @keyframes wave {
-        0%, 100% { transform: rotate(0); }
-        25% { transform: rotate(20deg); }
-        75% { transform: rotate(-15deg); }
-    }
-
-    @media (max-width: 768px) {
-        .container {
-            padding: 1rem;
-            margin: 0 10px;
+      @keyframes wave {
+        0%,
+        100% {
+          transform: rotate(0);
         }
-        
-        .title { 
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
+        25% {
+          transform: rotate(20deg);
+        }
+        75% {
+          transform: rotate(-15deg);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 1rem;
+          margin: 0 10px;
+        }
+
+        .title {
+          font-size: 2.5rem;
+          margin-bottom: 1rem;
         }
 
         .subtitle {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
+          font-size: 1.2rem;
+          margin-bottom: 2rem;
         }
 
-        .features { 
-            flex-direction: column;
-            gap: 1rem;
+        .features {
+          flex-direction: column;
+          gap: 1rem;
         }
 
         .card {
-            padding: 1.5rem;
+          padding: 1.5rem;
         }
 
-        .feature-item { 
-            margin: 0.5rem 0;
-            padding: 0.8rem 1.5rem;
+        .feature-item {
+          margin: 0.5rem 0;
+          padding: 0.8rem 1.5rem;
         }
-    }
+      }
 
-    @media (prefers-reduced-motion: reduce) {
-        .wave, .emoji, .card::before {
-            animation: none;
-            transition: none;
+      @media (prefers-reduced-motion: reduce) {
+        .wave,
+        .emoji,
+        .card::before {
+          animation: none;
+          transition: none;
         }
-    }
+      }
 
-    .statistics {
+      .statistics {
         display: flex;
         justify-content: space-around;
         margin: 2rem 0;
-    }
+      }
 
-    .stat-item {
+      .stat-item {
         display: flex;
         flex-direction: column;
         align-items: center;
-    }
+      }
 
-    .stat-number {
+      .stat-number {
         font-size: 2rem;
         font-weight: 600;
         color: var(--primary-color);
-    }
+      }
 
-    .stat-label {
+      .stat-label {
         color: #94a3b8;
         font-size: 0.9rem;
         margin-top: 0.5rem;
-    }
+      }
     </style>
 
     <script>
-        
-        // Konami code implementation
-        let konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
-        let konamiIndex = 0;
-        const topBar = document.head.querySelector('meta[name="theme-color"]');
+      // Konami code implementation
+      let konamiCode = [
+        "ArrowUp",
+        "ArrowUp",
+        "ArrowDown",
+        "ArrowDown",
+        "ArrowLeft",
+        "ArrowRight",
+        "ArrowLeft",
+        "ArrowRight",
+        "b",
+        "a",
+      ];
+      let konamiIndex = 0;
+      const topBar = document.head.querySelector('meta[name="theme-color"]');
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === konamiCode[konamiIndex]) {
-                konamiIndex++;
-                if (konamiIndex === konamiCode.length) {
-                    document.body.classList.add('theme-matrix');
-                    topBar.setAttribute('content', '#021702');
-                    document.querySelector('.secret-footer').style.opacity = '1';
-                    konamiIndex = 0;
-                }
-            } else {
-                konamiIndex = 0;
-            }
-        });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === konamiCode[konamiIndex]) {
+          konamiIndex++;
+          if (konamiIndex === konamiCode.length) {
+            document.body.classList.add("theme-matrix");
+            topBar.setAttribute("content", "#021702");
+            document.querySelector(".secret-footer").style.opacity = "1";
+            konamiIndex = 0;
+          }
+        } else {
+          konamiIndex = 0;
+        }
+      });
 
-        // Double click easter egg
-        let clickCount = 0;
-        document.querySelector('.title').addEventListener('dblclick', () => {
-            clickCount++;
-            if (clickCount === 3) {
-                document.body.classList.add('theme-retro');
-                topBar.setAttribute('content', '#2a0f17');
-            }
-        });
+      // Double click easter egg
+      let clickCount = 0;
+      document.querySelector(".title").addEventListener("dblclick", () => {
+        clickCount++;
+        if (clickCount === 3) {
+          document.body.classList.add("theme-retro");
+          topBar.setAttribute("content", "#2a0f17");
+        }
+      });
 
-        // Random emoji generator
-        const emojis = ['✨', '🌟', '💫', '⭐', '🌠'];
-        document.querySelector('.emoji').addEventListener('click', (e) => {
-            e.target.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        });
+      // Random emoji generator
+      const emojis = ["✨", "🌟", "💫", "⭐", "🌠"];
+      document.querySelector(".emoji").addEventListener("click", (e) => {
+        e.target.textContent =
+          emojis[Math.floor(Math.random() * emojis.length)];
+      });
     </script>
-</body>
+  </body>
 </html>
