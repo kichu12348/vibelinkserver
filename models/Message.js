@@ -4,7 +4,8 @@ const messageSchema = new mongoose.Schema({
     conversation: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Conversation',
-        required: true
+        required: true,
+        index: true // Index for better query performance
     },
     sender: {
         type: mongoose.Schema.Types.ObjectId,
@@ -44,15 +45,8 @@ const messageSchema = new mongoose.Schema({
     }
 });
 
-// Update conversation's lastMessage when a new message is created
-messageSchema.post('save', async function() {
-    await this.model('Conversation').findByIdAndUpdate(
-        this.conversation,
-        { 
-            lastMessage: this.content || 'Shared a media',
-            lastMessageAt: this.createdAt
-        }
-    );
-});
-
+messageSchema.index({
+    conversation: 1, // Index for better query performance
+    createdAt:-1 // Sort messages in a conversation by newest first
+}); // Index for better query performance
 module.exports = mongoose.model('Message', messageSchema);

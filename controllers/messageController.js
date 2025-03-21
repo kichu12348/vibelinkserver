@@ -10,6 +10,7 @@ let io;
 
 const convoActiveUsers = new Map();
 const sendNotifsMap = new Map();
+const convoCache = new Map();
 
 // Get or create conversation between users
 const getOrCreateConversation = async (participants) => {
@@ -36,6 +37,10 @@ const getOrCreateConversation = async (participants) => {
   }
 };
 
+const updateConversationCache = (convo) => {
+  convoCache.set(convo._id, convo);
+};
+
 exports.sendMessage = async (req, res) => {
   try {
     const { receiverId, content, conversationId, media, sharedPost } = req.body;
@@ -44,8 +49,12 @@ exports.sendMessage = async (req, res) => {
     let conversation;
 
     if (conversationId) {
-      // If existing conversation
-      conversation = await Conversation.findById(conversationId);
+      if (convoCache.has(conversationId)) {
+        conversation = convoCache.get(conversationId);
+      } else {
+        conversation = await Conversation.findById(conversationId);
+        convoCache.set(conversationId, conversation);
+      }
       if (!conversation) {
         return res.status(404).json({ message: "Conversation not found" });
       }
@@ -58,38 +67,51 @@ exports.sendMessage = async (req, res) => {
         .json({ message: "Either conversationId or receiverId is required" });
     }
 
-    // Create message
-    const message = await Message.create({
+    const messageData = {
       conversation: conversation._id,
       sender: senderId,
       content,
       media: media ? { type: "image", url: media } : undefined,
       sharedPost: sharedPost || undefined,
-    });
+    };
 
-    // Update conversation
-    await conversation.updateLastMessage({
-      content: content || (sharedPost ? "Shared a post" : "Sent an image"),
+    const message = await Message.create(messageData);
+    conversation.updateLastMessage({
+      content: content || "Shared a media",
       sender: senderId,
       type: sharedPost ? "post" : media ? "image" : "text",
     });
-
-    // Populate sender and post details
-    await message.populate([
-      { path: "sender", select: "username profileImage" },
-      {
-        path: "sharedPost",
-        populate: [
-          { path: "user", select: "username profileImage" },
-          { path: "comments.user", select: "username profileImage" },
-          { path: "comments.replies.user", select: "username profileImage" },
-          { path: "likes", select: "username profileImage" },
-        ],
-      },
-    ]);
-    await conversation.populate("participants.user", "username profileImage");
-
-    // Emit to all participants
+    await Promise.all([
+      message.populate([
+        {
+          path: "sender",
+          select: "username profileImage",
+          options: { lean: true },
+        },
+        ...(sharedPost
+          ? [
+              {
+                path: "sharedPost",
+                populate: [
+                  { path: "user", select: "username profileImage" },
+                  { path: "comments.user", select: "username profileImage" },
+                  {
+                    path: "comments.replies.user",
+                    select: "username profileImage",
+                  },
+                  { path: "likes", select: "username profileImage" },
+                ],
+                options: { lean: true },
+              },
+            ]
+          : []),
+      ]),
+      conversation.populate({
+        path: "participants.user",
+        select: "username profileImage",
+        options: { lean: true },
+      }),
+    ]); // Wait for all promises to resolve
     conversation.participants.forEach((participant) => {
       if (participant.user._id.toString() !== senderId.toString()) {
         io.to(participant.user._id.toString()).emit("newMessage", {
@@ -98,8 +120,6 @@ exports.sendMessage = async (req, res) => {
         });
       }
     });
-
-    // Send push notification to receiver
     conversation.participants.forEach(async (participant) => {
       if (participant.user._id.toString() !== senderId.toString()) {
         if (convoActiveUsers.has(participant.user._id.toString())) return;
@@ -127,7 +147,7 @@ exports.sendMessage = async (req, res) => {
     io.to(`chat:${conversation._id.toString()}`).emit("userStopTyping", {
       userId: senderId,
     });
-
+    updateConversationCache(conversation);
     res.status(201).json({
       message,
       conversation,
@@ -244,6 +264,7 @@ exports.deleteMessage = async (req, res) => {
       conversation.lastMessage = lastMessage;
       await conversation.save();
     }
+    updateConversationCache(conversation);
     res.json({ message: "Message deleted" });
   } catch (error) {
     res.status(500).json({ message: `server error: ${error.message}` });
