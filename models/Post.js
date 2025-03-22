@@ -66,6 +66,13 @@ const postSchema = new mongoose.Schema({
   },
 });
 
+postSchema.index({
+  user: 1,
+  "comments.user": 1,
+  "comments.replies.user": 1,
+  likes: 1,
+}) // Index for sorting posts by user, comment user, reply user, likes
+
 // Virtual for like count
 postSchema.virtual("likeCount").get(function () {
   return this.likes.length;

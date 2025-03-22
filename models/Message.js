@@ -47,6 +47,8 @@ const messageSchema = new mongoose.Schema({
 
 messageSchema.index({
     conversation: 1, // Index for better query performance
-    createdAt:-1 // Sort messages in a conversation by newest first
+    createdAt:-1, // Sort messages in a conversation by newest first 
+    sender: 1, 
 }); // Index for better query performance
+messageSchema.index({ 'sharedPost': 1 }); // Index for better query performance
 module.exports = mongoose.model('Message', messageSchema);
