@@ -75,7 +75,7 @@ exports.sendMessage = async (req, res) => {
       sharedPost: sharedPost || undefined,
     };
 
-    const message = await Message.create(messageData);
+    const message = new Message(messageData);
     conversation.updateLastMessage({
       content: content || "Shared a media",
       sender: senderId,
@@ -120,6 +120,16 @@ exports.sendMessage = async (req, res) => {
         });
       }
     });
+
+    io.to(`chat:${conversation._id.toString()}`).emit("userStopTyping", {
+      userId: senderId,
+    });
+
+    res.status(201).json({
+      message,
+      conversation,
+    });
+    await message.save();
     conversation.participants.forEach(async (participant) => {
       if (participant.user._id.toString() !== senderId.toString()) {
         if (convoActiveUsers.has(participant.user._id.toString())) return;
@@ -144,14 +154,7 @@ exports.sendMessage = async (req, res) => {
         }
       }
     });
-    io.to(`chat:${conversation._id.toString()}`).emit("userStopTyping", {
-      userId: senderId,
-    });
     updateConversationCache(conversation);
-    res.status(201).json({
-      message,
-      conversation,
-    });
   } catch (error) {
     console.error("Send message error:", error);
     res.status(500).json({ message: error.message });
