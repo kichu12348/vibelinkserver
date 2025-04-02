@@ -32,3 +32,8 @@ exports.protect = async (req, res, next) => {
     res.status(401).json({ message: "Not authorized, no token" });
   }
 };
+
+//using promise to update the user cache because the function is async and we need to return a promise
+// this is a workaround to avoid using async/await in the middleware
+
+exports.updateUserCache = (userId, userData) => UserMap.set(userId, userData);

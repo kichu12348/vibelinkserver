@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { uploadFile, deleteFile } = require("../utils/uploadToGcp");
 const { sendPushNotification } = require("../utils/notificationService");
+const {updateUserCache} = require("../middleware/authMiddleware");
 
 let io;
 
@@ -121,6 +122,15 @@ exports.updateUserProfile = async (req, res) => {
     const updatedUser = await user.save();
     res.json({
       _id: updatedUser._id,
+      username: updatedUser.username,
+      email: updatedUser.email,
+      bio: updatedUser.bio,
+      profileImage: updatedUser.profileImage,
+    });
+
+    // Update the user in the cache
+    updateUserCache(updatedUser._id.toString(), {
+      _id: updatedUser._id.toString(),
       username: updatedUser.username,
       email: updatedUser.email,
       bio: updatedUser.bio,
