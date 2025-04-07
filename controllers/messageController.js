@@ -222,14 +222,16 @@ exports.deleteMessage = async (req, res) => {
     const { messageId } = req.params;
     const userId = req.user._id;
 
-    const message = await Message.findOne({
-      _id: messageId,
-      sender: userId,
-    });
+    const message = await Message.findById(messageId);
 
     if (!message) {
       return res.status(404).json({ message: "Message not found" });
     }
+
+    if (message.sender?._id.toString() !== userId.toString()) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+    // Check if the message is part of a conversation
 
     const conversation = await Conversation.findById(
       message.conversation
