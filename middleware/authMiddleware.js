@@ -12,7 +12,7 @@ exports.protect = async (req, res, next) => {
   ) {
     try {
       token = req.headers.authorization.split(" ")[1];
-      const decoded = jwt.verify(token,"your_secret_key");
+      const decoded = jwt.verify(token,"your_jwt_secret_key");
       // Check if the token is already in the map
       const cachedUser = UserMap.get(decoded.id);
       if (cachedUser) {

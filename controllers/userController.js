@@ -8,7 +8,7 @@ const {updateUserCache} = require("../middleware/authMiddleware");
 let io;
 
 const generateToken = (id) => {
-  return jwt.sign({ id }, "your_secret_key");
+  return jwt.sign({ id }, "your_jwt_secret_key");
 };
 
 exports.registerUser = async (req, res) => {
