@@ -6,7 +6,7 @@ const storage = new Storage({
   keyFilename: "keys.json",
 });
 
-const bucketName = "vibelink-pub-bucket2";
+const bucketName = "vibelink-pub-bucket3";
 const bucket = storage.bucket(bucketName);
 
 const deleteFileFromUploads = (file) => {
